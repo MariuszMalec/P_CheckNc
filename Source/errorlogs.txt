@@ -1,0 +1,6 @@
+2023-06-15 17:57:00, [ERROR], 1, ./Source\B12345661.SPF, checkM3 ,=> Brak M03!
+2023-06-15 17:57:00, [ERROR], 2, ./Source\D12345620.SPF, checksyntaxerrorinTrans ,=> Nie mozna z parsowac N32 TRANS  X=R4s
+2023-06-15 17:57:00, [ERROR], 3, ./Source\D12345633.SPF, checkA360 ,=> Usun A360 w pliku => ./Source\D12345633.SPF
+2023-06-15 17:57:00, [ERROR], 4, ./Source\D12345637.SPF, checksyntaxerror ,=> Nie mozna z parsowac N50 X--148.756 Y-19.838 Z-14.018
+2023-06-15 17:57:00, [ERROR], 5, ./Source\D12345638.SPF, CheckG41G42G40 ,=> Brak korekcji promieniowej
+2023-06-15 17:57:00, [ERROR], 6, ./Source\D12345661.SPF, checkM3 ,=> Brak M03!

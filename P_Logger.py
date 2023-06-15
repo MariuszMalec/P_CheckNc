@@ -8,7 +8,7 @@ logFileFormatter = logging.Formatter(
     fmt="%(asctime)s, [%(levelname)s], %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-fileHandler = logging.FileHandler(filename=r'c:/tempnc/errorlogs.txt', mode="w")
+fileHandler = logging.FileHandler(filename=r'./Source/errorlogs.txt', mode="w")
 fileHandler.setFormatter(logFileFormatter)
 fileHandler.setLevel(level=logging.ERROR)
 

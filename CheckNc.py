@@ -1,3 +1,4 @@
+import sys
 import time, os
 import P_Logger
 import P_CheckM17, P_CheckSyntaxError, P_CheckSyntaxErrorInTRANS
@@ -126,7 +127,13 @@ P_Logger.logger.info('Starting checking ...')
 #read file
 file = r'c:/tempnc/D12345638.SPF'#A88888851.SPF,D12345635.SPF,B12345652.SPF,8999901.NC,
 
-files = get_files(r'c:/tempnc')
+#check directory
+folder = r'./Source'
+if not (os.path.dirname(folder)):
+    P_Logger.logger.error('brak katalogu!')
+    sys.exit()  
+
+files = get_files(folder)
 
 for item in files:
     mainerrors.extend(findErrors(item))
