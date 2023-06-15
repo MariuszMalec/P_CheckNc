@@ -40,6 +40,11 @@ def Check(file, lines):
                 not (line.__contains__('COMPOF')) and \
                 not (line.__contains__('FFWON')) and \
                 not (line.__contains__('NG')) and \
+                not (line.__contains__('MACHINE')) and \
+                not (line.__contains__('PROGRAM')) and \
+                not (line.__contains__('RAPORT')) and \
+                not (line.__contains__('OPER.')) and \
+                not (line.__contains__('STARRAG')) and \
                 not (line.__contains__("VELOLIM")):
                     linesWithMovments.append(line)     
     words = ['X','Y','Z','A','B','F']
