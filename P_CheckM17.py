@@ -15,7 +15,11 @@ def main():
 
     with open(file) as f:
         lines = f.readlines()
-        Check(file, lines)
+        check = Check(file, lines)
+        if (check == None):
+            P_Logger.logger.info("Brak bledow w pliku => " + file)
+        if (check):
+            P_Logger.logger.error("Bledy w pliku => " + check.error)
 
 if __name__ == '__main__':
     main()        

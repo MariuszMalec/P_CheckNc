@@ -1,4 +1,5 @@
 from P_ModelCheckCode import CheckCode
+import P_Logger, os
 
 errors = []
 
@@ -60,3 +61,21 @@ def Check(file, lines):
                     if not isParse:
                         errors.append(CheckCode(7,file, "checksyntaxerror","Nie mozna z parsowac " + match))
     return errors
+
+def main():    
+    file = r'./Source/D12345637.SPF'
+    if not (os.path.exists(file)):
+        P_Logger.logger.error("Brak pliku => " + file)
+        exit(1)
+
+    with open(file) as f:
+        lines = f.readlines()
+        errors = Check(file, lines)
+        if (len(errors) == 0):
+            P_Logger.logger.info("Brak bledow w pliku => " + file)
+        if (len(errors)>0):
+            for error in errors:
+                P_Logger.logger.error("Bledy w pliku => " + file + ", patrz =>" + str(error.error))
+
+if __name__ == '__main__':
+    main()        
