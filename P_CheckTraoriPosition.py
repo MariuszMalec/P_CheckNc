@@ -29,14 +29,18 @@ def Check(file, lines):
                             break        
 
 def main():    
-    file = r'c:/tempnc/D12345638.SPF'
+    file = r'./Source/D12345638.SPF'
     if not (os.path.exists(file)):
         P_Logger.logger.error("Brak pliku => " + file)
         exit(1)
 
     with open(file) as f:
         lines = f.readlines()
-        Check(file, lines)
+        check = Check(file, lines)
+        if (check == None):
+            P_Logger.logger.info("Brak bledow w pliku => " + file)
+        if (check):
+            P_Logger.logger.error("Bledy w pliku => " + check.error)
 
-if __name__ == '__man__':
+if __name__ == '__main__':
     main() 
