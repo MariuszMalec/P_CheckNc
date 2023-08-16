@@ -145,4 +145,7 @@ for item in mainerrors:
         P_Logger.logger.error(f'{count}, {item.ncProgramCheck}, {item.message} ,=> {item.error}')
         count+=1
 
+if (len(mainerrors)==0):
+    P_Logger.logger.info("Brak bledow")
+
 P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time))   
