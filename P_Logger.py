@@ -27,8 +27,8 @@ logger.addHandler(fileHandler)
 def main():
     logger.debug("test debug")
     logger.info("test info")
-    logger.warning("test info")
+    logger.warning("test warning")
     logger.error("test error")
 
-if __name__ == '__man__':
+if __name__ == '__main__':
     main()
