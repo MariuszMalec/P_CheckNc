@@ -6,7 +6,6 @@ def Check(file, lines):
     if not any("M17" in word for word in lines):    
         #P_Logger.logger.error("Brak M17 w pliku => " + file)
         return CheckCode(1,file, "checksyntaxerror","Brak M17")
-    return CheckCode(1, file, "checksyntaxerror","brak bledow")
 
 def main():    
     file = r'./Source/B12345651.SPF'
