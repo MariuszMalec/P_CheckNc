@@ -29,7 +29,7 @@ def Check(file, lines):
                             break        
 
 def main():    
-    file = r'./Source/D12345638.SPF'
+    file = r'./Source/D12345633.SPF'
     if not (os.path.exists(file)):
         P_Logger.logger.error("Brak pliku => " + file)
         exit(1)
