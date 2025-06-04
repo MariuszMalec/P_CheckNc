@@ -128,7 +128,8 @@ P_Logger.logger.info('Starting checking ...')
 file = r'c:/tempnc/D12345638.SPF'#A88888851.SPF,D12345635.SPF,B12345652.SPF,8999901.NC,
 
 #check directory
-folder = r'./Source'
+#folder = r'./Source'
+folder = r'c:/tempnc'
 if not (os.path.dirname(folder)):
     P_Logger.logger.error('brak katalogu!')
     sys.exit()  
