@@ -3,63 +3,47 @@ import P_Logger, os
 
 errors = []
 
-def is_float(string):
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
+def validate_gcode_line(line):
+    
+    SKIP_VALUE_CODES = {"MSG","CYCLE832","E_ZDARZ","TRAFOOF","TRANS","FGROUP"}
+
+    line = line.strip()
+
+    if not line or line.startswith('('):
+        return None
+    
+    if not line or line.startswith(';'):
+        return None
+    
+    for skipValue in SKIP_VALUE_CODES:
+        if skipValue in line:
+            return None
+    
+    return line
+
 
 def Check(file, lines):    
     errors = []
-    linesWithMovments = []
+    CONVERT_FLOAT_CODES = {'X','Y','Z','A','B','F'}
+
     for line in lines:
-        if not (line.__contains__("MSG")) and \
-                not (line.startswith(';')) and \
-                not (line.__contains__('TRANS')) and \
-                not (line.__contains__('TRAFOOF')) and \
-                not (line.__contains__('TRAORI')) and \
-                not (line.__contains__('E_ZDARZ')) and \
-                not (line.__contains__('DELTA')) and \
-                not (line.__contains__('CYCLE')) and \
-                not (line.__contains__(' - ')) and \
-                not (line.__contains__('FGROUP')) and \
-                not (line.__contains__('blokada')) and \
-                not (line.__contains__('SOFT')) and \
-                not (line.__contains__('FNORM')) and \
-                not (line.__contains__('ACS')) and \
-                not (line.__contains__('OSI')) and \
-                not (line.__contains__('wstawione')) and \
-                not (line.__contains__('TRAILON')) and \
-                not (line.__contains__('NT')) and \
-                not (line.__contains__('FS')) and \
-                not (line.__contains__('SPIRALA')) and \
-                not (line.__contains__('USUN')) and \
-                not (line.__contains__('=R')) and \
-                not (line.__contains__('R1')) and \
-                not (line.__contains__('R2')) and \
-                not (line.__contains__('COMPOF')) and \
-                not (line.__contains__('FFWON')) and \
-                not (line.__contains__('NG')) and \
-                not (line.__contains__('MACHINE')) and \
-                not (line.__contains__('PROGRAM')) and \
-                not (line.__contains__('RAPORT')) and \
-                not (line.__contains__('OPER.')) and \
-                not (line.__contains__('STARRAG')) and \
-                not (line.__contains__("VELOLIM")):
-                    linesWithMovments.append(line)     
-    words = ['X','Y','Z','A','B','F']
-    for word in words:
-        checkWord = " " + word
-        for match in linesWithMovments:
-            for item in match.split(' '):
-                if item.__contains__(word):
-                    item = item.replace("A=DC(","")
-                    item = item.replace(")",'')
-                    item = item.replace(word,'')
-                    isParse = is_float(item)
-                    if not isParse:
-                        errors.append(CheckCode(7,file, "checksyntaxerror","Nie mozna z parsowac " + match))
+
+        validateLine = validate_gcode_line(line)
+
+        if validateLine != None:
+
+            validateLine = validateLine.split(';')[0]
+
+            tokens = validateLine.split()    
+
+            for token in tokens:
+        
+                for floatValue in CONVERT_FLOAT_CODES:
+                    if token.startswith(floatValue):
+                        try:            
+                            code = float(token[1:])
+                        except ValueError:
+                            errors.append(CheckCode(7,file, "checksyntaxerror","Nie mozna z parsowac " + line))
     return errors
 
 def main():    

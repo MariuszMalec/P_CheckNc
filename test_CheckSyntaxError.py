@@ -21,7 +21,7 @@ class Test_P_CheckSyntaxError(unittest.TestCase):
             errorMessage = ""
             for item in result:
                 errorMessage = item.error
-            self.assertEqual(result[1].error, 'Nie mozna z parsowac N48 X-148.788 Yaa-20.173 Z-14.447 \n')
+            self.assertEqual(result[1].error, 'Nie mozna z parsowac N50 X--148.756 Y-19.838 Z-14.018 \n')
 
 
 if __name__ == '__main__':

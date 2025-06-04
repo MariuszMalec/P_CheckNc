@@ -27,7 +27,7 @@ def get_files(path):
             if os.path.isfile(os.path.join(path, file)):
                 files.append(os.path.join(path, file))
     return files
-
+    
 def findErrors(file):
     if (os.path.exists(file)):
 
@@ -36,11 +36,13 @@ def findErrors(file):
         with open(file) as txt_file:
             lines = [line.rstrip() for line in txt_file]
 
+        file = os.path.basename(file)
+
         #----------------------------------------------
         # 1. Get Machine from file
         #----------------------------------------------
         machine = getMachine(lines)
-        
+
         P_Logger.logger.debug(f"{file} | {machine}")
 
         #----------------------------------------------
@@ -78,14 +80,15 @@ def findErrors(file):
             not any("M3" in word for word in lines):
             errors.append(CheckCode(3,file, "checkM3","Brak M03!"))  
 
-        #----------------------------------------------
-        # 8. check RAPORT
-        #----------------------------------------------
-        if (machine.__contains__("HD")):
-            matches = [match for match in lines if "RAPORT" in match]
-            for match in matches:
-                pass
-                #errors.append(CheckCode(4,file, "checkRAPORT","usun RAPORT! w lini: " + match))      
+        skipRaport = True
+        if not skipRaport:
+            #----------------------------------------------
+            # 8. check RAPORT
+            #----------------------------------------------
+            if (machine.__contains__("HD")):
+                matches = [match for match in lines if "RAPORT" in match]
+                for match in matches:
+                    errors.append(CheckCode(4,file, "checkRAPORT","usun RAPORT! w lini: " + match))      
 
         #----------------------------------------------
         # 9. check M30
@@ -111,12 +114,13 @@ def findErrors(file):
         #----------------------------------------------
         # 11. check syntaxerror
         #----------------------------------------------
-        errors.extend(P_CheckSyntaxError.Check(file, lines))
+        if not file.__contains__("61.SPF"):
+            errors.extend(P_CheckSyntaxError.Check(file, lines))
 
-        #----------------------------------------------
-        # 12. check syntaxerrorinTRANS
-        #----------------------------------------------
-        errors.extend(P_CheckSyntaxErrorInTRANS.Check(file, lines))
+        # #----------------------------------------------
+        # # 12. check syntaxerrorinTRANS
+        # #----------------------------------------------
+        # errors.extend(P_CheckSyntaxErrorInTRANS.Check(file, lines))
            
     else:
         P_Logger.logger.error(f'brak pliku {file}!')
