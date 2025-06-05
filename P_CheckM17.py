@@ -1,13 +1,19 @@
 import os
 import P_Logger
 from P_ModelCheckCode import CheckCode
+import asyncio
 
+async def CheckAsync(file, lines):
+    if not any('M17' in word for word in lines):
+        #P_Logger.logger.error("Brak M17 w pliku => " + file)
+        return CheckCode(1,file, "checksyntaxerror","Brak M17")
+    
 def Check(file, lines):
     if not any('M17' in word for word in lines):
         #P_Logger.logger.error("Brak M17 w pliku => " + file)
         return CheckCode(1,file, "checksyntaxerror","Brak M17")
 
-def main():    
+async def main():    
     file = r'./Source/D12345685.SPF'
     if not (os.path.exists(file)):
         P_Logger.logger.error("Brak pliku => " + file)
@@ -15,11 +21,11 @@ def main():
 
     with open(file) as f:
         lines = f.readlines()
-        check = Check(file, lines)
+        check = await CheckAsync(file, lines)
         if (check == None):
             P_Logger.logger.info("Brak bledow w pliku => " + file)
         if (check):
             P_Logger.logger.error("Bledy w pliku => " + check.error)
 
 if __name__ == '__main__':
-    main()        
+    asyncio.run(main())      
