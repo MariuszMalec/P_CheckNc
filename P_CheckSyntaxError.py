@@ -1,6 +1,8 @@
 from P_ModelCheckCode import CheckCode
-import P_Logger, os
+import P_Logger, os, time
 import asyncio
+import Globals as glob
+from prettytable import PrettyTable
 
 errors = []
 
@@ -23,6 +25,7 @@ def validate_gcode_line(line):
     return line
 
 async def CheckAsync(file, lines):    
+    start_time = time.time()
     errors = []
     CONVERT_FLOAT_CODES = {'X','Y','Z','A','B','F'}
 
@@ -44,7 +47,11 @@ async def CheckAsync(file, lines):
                             code = float(token[1:])
                         except ValueError:
                             errors.append(CheckCode(7,file, "checksyntaxerror","Nie mozna z parsowac " + line))
+                            #P_Logger.logger.error(f"checksyntaxerror, Nie mozna z parsowac {line} w pliku {file}")
+                            glob.table.add_row([file,"checksyntaxerror","--- %s seconds ---" % (time.time() - start_time)])  
                             return errors                            
+    glob.table.add_row([file,"checksyntaxerror","--- %s seconds ---" % (time.time() - start_time)])         
+    await asyncio.sleep(0)                 
     return errors
 
 def Check(file, lines):    
@@ -73,6 +80,12 @@ def Check(file, lines):
     return errors
 
 async def main():    
+
+    glob.start_time = time.time()
+    glob.table = PrettyTable()
+    header = ["NcProgram", "Function","Time"]
+    glob.table.field_names = header
+
     file = r'./Source/D12345637.SPF'
     if not (os.path.exists(file)):
         P_Logger.logger.error("Brak pliku => " + file)

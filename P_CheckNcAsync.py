@@ -2,16 +2,12 @@ import sys
 import time, os
 import P_Logger
 import P_CheckM17, P_CheckSyntaxError, P_CheckSyntaxErrorInTRANS
-import P_CheckG41G42G40, P_CheckTraoriPosition
+import P_CheckG41G42G40, P_CheckTraoriPosition, P_CheckM6, P_CheckE_ZDARZ
+import P_CheckA360, P_CheckRAPORT, P_CheckM30
 from P_ModelCheckCode import CheckCode
 import asyncio
 from prettytable import PrettyTable # please install: pip install prettytable
-
-start_time = time.time()
-mainerrors = []
-table = PrettyTable()
-header = ["NcProgram", "Function","Time"]
-table.field_names = header
+import Globals as glob
     
 def getMachine(lines):
     matches = [match for match in lines if "MACHINE" in match]
@@ -32,143 +28,15 @@ def get_files(path):
             if os.path.isfile(os.path.join(path, file)):
                 files.append(os.path.join(path, file))
     return files
-    
-async def findErrors(file):
-    if (os.path.exists(file)):
-
-        errors = []
-        
-        with open(file) as txt_file:
-            lines = [line.rstrip() for line in txt_file]
-
-        file = os.path.basename(file)
-
-        #----------------------------------------------
-        # 1. Get Machine from file
-        #----------------------------------------------
-        start_time = time.time()
-        machine = getMachine(lines)
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time)  + ": check machine")   
-        table.add_row([file,"getMachine","--- %s seconds ---" % (time.time() - start_time)])
-
-        P_Logger.logger.debug(f"{file} | {machine}")
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 2. check E_ZDARZ=3
-        #----------------------------------------------
-        if file.__contains__("35.SPF") or file.__contains__("49.SPF"):
-            if not any("E_ZDARZ=3" in word for word in lines):
-                errors.append(CheckCode(2,file, "check_E_ZDARZ3","Brak E_ZDARZ=3 w pliku => " + file))        
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check E_ZDARZ=3")   
-        table.add_row([file,"check E_ZDARZ=3","--- %s seconds ---" % (time.time() - start_time)])
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 3. check M17
-        #----------------------------------------------
-        errors.append(await P_CheckM17.CheckAsync(file, lines))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": checkM17") 
-        table.add_row([file,"checkM17","--- %s seconds ---" % (time.time() - start_time)])  
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 4. check G41G42G40
-        #----------------------------------------------
-        errors.append(await P_CheckG41G42G40.CheckAsync(file, lines))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check P_CheckG41G42G40")   
-        table.add_row([file,"P_CheckG41G42G40","--- %s seconds ---" % (time.time() - start_time)])  
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 5. check traori
-        #----------------------------------------------
-        errors.append(await P_CheckTraoriPosition.CheckAsync(file, lines))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check P_CheckTraoriPosition")     
-        table.add_row([file,"P_CheckTraoriPosition","--- %s seconds ---" % (time.time() - start_time)])   
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 6. check M6
-        #----------------------------------------------
-        if not any("M6" in word for word in lines):
-            errors.append(CheckCode(2,file, "checksyntaxerror","Brak M6 w pliku => " + file))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check M6")   
-        table.add_row([file,"check M6","--- %s seconds ---" % (time.time() - start_time)])   
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 7. check M3
-        #----------------------------------------------
-        if not any("M03" in word for word in lines) or \
-            not any("M3" in word for word in lines):
-            errors.append(CheckCode(3,file, "checkM3","Brak M03!"))  
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check M3")   
-        table.add_row([file,"check M3","--- %s seconds ---" % (time.time() - start_time)])   
-
-        skipRaport = True
-        if not skipRaport:
-            start_time = time.time()
-            #----------------------------------------------
-            # 8. check RAPORT
-            #----------------------------------------------
-            if (machine.__contains__("HD")):
-                matches = [match for match in lines if "RAPORT" in match]
-                for match in matches:
-                    errors.append(CheckCode(4,file, "checkRAPORT","usun RAPORT! w lini: " + match))      
-            #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check RAPORT")  
-            table.add_row([file,"check RAPORT","--- %s seconds ---" % (time.time() - start_time)])       
-
-        #----------------------------------------------
-        # 9. check M30
-        #----------------------------------------------
-        if (machine.__contains__("HURON")):
-            start_time = time.time()
-            matches = [match for match in lines if "M30" in match]
-            for match in matches:
-                if not (match.__contains__("HSTM")):
-                    errors.append(CheckCode(5,file, "checksyntaxerror","Usun 30 w pliku => " + file))
-            #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check M30")   
-            table.add_row([file,"check M30","--- %s seconds ---" % (time.time() - start_time)])             
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 10. check A360
-        #----------------------------------------------
-        if (machine.__contains__("HURON")):
-            matches = [match for match in lines if "A=DC(360." in match]
-            for match in matches:
-                errors.append(CheckCode(5,file, "checkA360","Usun A360 w pliku => " + file))
-        else:
-            matches = [match for match in lines if "A360." in match]
-            for match in matches:
-                errors.append(CheckCode(5,file, "checkA360","Usun A360 w pliku => " + file))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time) + ": check A360")   
-        table.add_row([file,"check A360","--- %s seconds ---" % (time.time() - start_time)])             
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 11. check syntaxerror
-        #----------------------------------------------
-        if not file.__contains__("61.SPF"):
-            errors.extend(await P_CheckSyntaxError.CheckAsync(file, lines))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time)+ ": check P_CheckSyntaxError") 
-        table.add_row([file,"P_CheckSyntaxError","--- %s seconds ---" % (time.time() - start_time)])               
-
-        start_time = time.time()
-        #----------------------------------------------
-        # 12. check syntaxerrorinTRANS
-        #----------------------------------------------
-        errors.extend(await P_CheckSyntaxErrorInTRANS.CheckAsync(file, lines))
-        #P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time)+ ": check P_CheckSyntaxErrorInTRANS")   
-        table.add_row([file,"P_CheckSyntaxErrorInTRANS","--- %s seconds ---" % (time.time() - start_time)])               
-           
-    else:
-        P_Logger.logger.error(f'brak pliku {file}!')
-    return errors
 
 async def main():    
     P_Logger.logger.info('Starting async checking ...')   
+
+    glob.start_time = time.time()
+    mainerrors = []
+    glob.table = PrettyTable()
+    header = ["NcProgram", "Function","Time"]
+    glob.table.field_names = header
 
     #check directory
     #folder = r'./Source'
@@ -179,13 +47,43 @@ async def main():
 
     files = get_files(folder)
 
-    
+    for file in files:
 
-    for item in files:
-        mainerrors.extend(await findErrors(item))
-        #P_Logger.logger.debug(item)
+        if (os.path.exists(file)):            
 
-    print(table)
+            with open(file) as txt_file:
+                lines = [line.rstrip() for line in txt_file]
+
+            machine = getMachine(lines)
+
+            file = os.path.basename(file)
+
+            results = await asyncio.gather(                
+                P_CheckM17.CheckAsync(file, lines),
+                P_CheckG41G42G40.CheckAsync(file, lines),
+                P_CheckTraoriPosition.CheckAsync(file, lines),
+                P_CheckSyntaxError.CheckAsync(file, lines),
+                P_CheckSyntaxErrorInTRANS.CheckAsync(file, lines),
+                P_CheckM6.CheckAsync(file, lines),
+                P_CheckE_ZDARZ.CheckAsync(file, lines),
+                P_CheckA360.CheckAsync(file, machine, lines),
+                P_CheckRAPORT.CheckAsync(file, machine, lines),
+                P_CheckM30.CheckAsync(file, machine, lines)
+            )  
+
+            # Process the results
+            mainerrors.append(results[0])
+            mainerrors.append(results[1])
+            mainerrors.append(results[2])
+            mainerrors.extend(results[3])
+            mainerrors.extend(results[4])      
+            mainerrors.append(results[5])      
+            mainerrors.append(results[6]) 
+            mainerrors.append(results[7]) 
+            mainerrors.append(results[8]) 
+            mainerrors.append(results[9])       
+
+    print(glob.table)
 
     count=1
     for item in mainerrors:
@@ -196,7 +94,7 @@ async def main():
     if (len(mainerrors)==0):
         P_Logger.logger.info("Brak bledow")
 
-    P_Logger.logger.info("--- %s seconds ---" % (time.time() - start_time))   
+    P_Logger.logger.info("--- %s seconds ---" % (time.time() - glob.start_time))   
 
 if __name__ == '__main__':
     asyncio.run(main())      

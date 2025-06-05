@@ -29,10 +29,13 @@ async def CheckAsync(file, lines):
                     item = item.replace("=R",'')
                     if not word in item:
                         errors.append(CheckCode(7,file, "checksyntaxerrorinTrans","Musi byc podana os " + match))
+                        #P_Logger.logger.error(f"checksyntaxerrorinTrans, Musi byc podana os {match} w pliku {file}")
                     item = item.replace(word,'')
                     isParse = is_int(item)
                     if not isParse and item != "":  
                         errors.append(CheckCode(7,file, "checksyntaxerrorinTrans","Nie mozna z parsowac " + match))
+                        #P_Logger.logger.error(f"checksyntaxerrorinTrans, Nie mozna z parsowac os {match} w pliku {file}")
+    await asyncio.sleep(0)
     return errors
 
 def Check(file, lines):     

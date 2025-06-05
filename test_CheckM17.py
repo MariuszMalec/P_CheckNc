@@ -1,8 +1,15 @@
 import unittest
 import asyncio
-import P_CheckM17
+import P_CheckM17, time
+import Globals as glob
+from prettytable import PrettyTable
 
 class TestPCheckM17(unittest.TestCase):
+
+    glob.start_time = time.time()
+    glob.table = PrettyTable()
+    header = ["NcProgram", "Function","Time"]
+    glob.table.field_names = header
 
     def test_p_checkm17_cases(self):
         test_cases = [
@@ -13,7 +20,7 @@ class TestPCheckM17(unittest.TestCase):
 
         for test_input1, test_input2, expected in test_cases:
             with self.subTest(file=test_input1):
-                result = asyncio.run(P_CheckM17.Check(test_input1, test_input2))
+                result = asyncio.run(P_CheckM17.CheckAsync(test_input1, test_input2))
                 error = result.error if result is not None else ''
                 self.assertEqual(error, expected)
 
